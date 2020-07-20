@@ -107,11 +107,11 @@ export default {
       console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       const item = _.find(this.defaultLayout, { i: i })
       console.log(item)
-      // console.log(item.w, newW)
+      // console.log(item.w, newW) //newW col倍数
       if (item.w < newW) {
         // console.log(this.layout)
-        const out = _.find(this.defaultLayout, { x: (newW - 1) * (item.x + 1), y: item.y })
-        console.log(this.layout, out)
+        const out = _.find(this.defaultLayout, { x: (item.x + (newW - 1)), y: item.y })
+        // console.log(this.layout, out)
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
         // this.preOut.push(_.find(this.layout, { i: out.i }))
       } else {
@@ -120,6 +120,10 @@ export default {
         // const insert = _.find(this.defaultLayout, { x: (newW), y: item.y })
         // insert.moved = false
         // this.layout.push(insert)
+        const out = _.find(this.defaultLayout, { x: (newW), y: item.y })
+        out.moved = false
+        console.log(this.layout, out)
+        this.layout.push(out)
       }
       // console.log(item)
     },
@@ -172,5 +176,7 @@ export default {
     top: 0;
     left: 0;
     z-index: 2;
+    background: rgba(0,0,0,0.6);
+    color: #ffffff;
   }
 </style>
