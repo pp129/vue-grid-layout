@@ -9,10 +9,10 @@
       </div>
     </div>
     <grid-layout
-      :layout.sync="layout"
+      :layout="layout"
       :col-num="parseInt(colNum)"
       :row-height="rowHeight"
-      :max-rows="3"
+      :maxRows="3"
       :is-draggable="draggable"
       :is-resizable="resizable"
       :is-mirrored="mirrored"
@@ -30,7 +30,6 @@
         class="grid-item"
         v-for="item in layout"
         :key="item.i"
-        :static="item.static"
         :x="item.x"
         :y="item.y"
         :w="item.w"
@@ -51,7 +50,8 @@
 
 <script>
 import VueGridLayout from 'vue-grid-layout'
-const testLayout = [
+import _ from 'lodash'
+const defaultLayout = [
   { x: 0, y: 0, w: 1, h: 1, i: '1' },
   { x: 1, y: 0, w: 1, h: 1, i: '2' },
   { x: 2, y: 0, w: 1, h: 1, i: '3' },
@@ -73,8 +73,10 @@ export default {
   },
   data () {
     return {
-      layout: JSON.parse(JSON.stringify(testLayout)),
-      layout2: JSON.parse(JSON.stringify(testLayout)),
+      defaultLayout: JSON.parse(JSON.stringify(defaultLayout)),
+      layout: JSON.parse(JSON.stringify(defaultLayout)),
+      preOut: [],
+      preIn: [],
       draggable: true,
       resizable: true,
       mirrored: false,
@@ -102,49 +104,51 @@ export default {
       console.log('Updated layout: ', newLayout)
     },
     resize: function (i, newH, newW, newHPx, newWPx) {
-      console.log(
-        'RESIZE i=' +
-          i +
-          ', H=' +
-          newH +
-          ', W=' +
-          newW +
-          ', H(px)=' +
-          newHPx +
-          ', W(px)=' +
-          newWPx
-      )
+      console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      const item = _.find(this.defaultLayout, { i: i })
+      console.log(item)
+      // console.log(item.w, newW)
+      if (item.w < newW) {
+        // console.log(this.layout)
+        const out = _.find(this.defaultLayout, { x: (newW - 1) * (item.x + 1), y: item.y })
+        console.log(this.layout, out)
+        this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
+        // this.preOut.push(_.find(this.layout, { i: out.i }))
+      } else {
+        // console.log(newW)
+        // console.log(_.find(this.defaultLayout, { x: (newW), y: item.y }))
+        // const insert = _.find(this.defaultLayout, { x: (newW), y: item.y })
+        // insert.moved = false
+        // this.layout.push(insert)
+      }
+      // console.log(item)
     },
     resized: function (i, newH, newW, newHPx, newWPx) {
-      console.log(
-        '### RESIZED i=' +
-          i +
-          ', H=' +
-          newH +
-          ', W=' +
-          newW +
-          ', H(px)=' +
-          newHPx +
-          ', W(px)=' +
-          newWPx
-      )
+      console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      // const item = _.find(this.defaultLayout, { i: i })
+      // if (item.w < newW) {
+      //   _.each(this.preOut, e => {
+      //     this.layout = _.without(this.layout, e)
+      //   })
+      // }
+      // this.preOut = []
     },
     containerResized: function (i, newH, newW, newHPx, newWPx) {
-      console.log(
-        '### CONTAINER RESIZED i=' +
-          i +
-          ', H=' +
-          newH +
-          ', W=' +
-          newW +
-          ', H(px)=' +
-          newHPx +
-          ', W(px)=' +
-          newWPx
-      )
+      // console.log('CONTAINER RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
     },
     move: function (i, newX, newY) {
       console.log('MOVE i=' + i + ', X=' + newX + ', Y=' + newY)
+      const item = _.find(this.layout, { x: newX, y: newY })
+      console.log(item)
+      const origin = _.find(this.layout, { i: i })
+      console.log(origin)
+      _.each(this.layout, e => {
+        if (e.i === item.i) {
+          e.x = origin.x
+          e.y = origin.y
+        }
+      })
+      console.log(item)
     },
     moved: function (i, newX, newY) {
       console.log('### MOVED i=' + i + ', X=' + newX + ', Y=' + newY)
