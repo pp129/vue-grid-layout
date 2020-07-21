@@ -112,50 +112,54 @@ export default {
      */
     resize: function (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
-      const item = _.find(this.defaultLayout, { i: i })
-      // console.log(item.h, newH)
-      // console.log(item.w, newW)
-      if (item.w < newW) {
-        const out = _.find(this.defaultLayout, { x: (item.x + (newW - 1)), y: item.y })
+      const origin = _.find(this.defaultLayout, { i: i })// 初始元素
+      console.log(origin)
+      // 单格合并
+      if (origin.w < newW) {
+        console.log(11)
+        const out = _.find(this.defaultLayout, { x: (origin.x + (newW - 1)), y: origin.y })
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
         // this.preOut.push(_.find(this.layout, { i: out.i }))
       } else {
         // console.log(newW)
-        // console.log(_.find(this.defaultLayout, { x: (newW), y: item.y }))
-        // const insert = _.find(this.defaultLayout, { x: (newW), y: item.y })
+        // console.log(_.find(this.defaultLayout, { x: (newW), y: origin.y }))
+        // const insert = _.find(this.defaultLayout, { x: (newW), y: origin.y })
         // insert.moved = false
         // this.layout.push(insert)
-        // const out = _.find(this.defaultLayout, { x: (newW), y: item.y })
+        // const out = _.find(this.defaultLayout, { x: (newW), y: origin.y })
         // out.moved = false
         // console.log(this.layout, out)
         // this.layout.push(out)
       }
-      if (item.h < newH) {
-        const out = _.find(this.defaultLayout, { y: (item.y + (newH - 1)), x: item.x })
+      if (origin.h < newH) {
+        console.log(22)
+        const out = _.find(this.defaultLayout, { y: (origin.y + (newH - 1)), x: origin.x })
         console.log(this.layout, out)
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
       }
-      const arr = []
-      if (item.w < newW && item.h < newH) {
+      // 多格合并
+      const outs = []
+      if (origin.w < newW && origin.h < newH) {
+        console.log(33)
         _.each(this.defaultLayout, o => {
-          if ((o.x <= item.x + (newW - 1)) && (o.y <= item.y + (newH - 1))) {
-            arr.push(o)
+          if ((o.x <= origin.x + (newW - 1)) && (o.y <= origin.y + (newH - 1))) {
+            outs.push(o)
           }
         })
-        _.each(arr, e => {
+        _.each(outs, e => {
           this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
         })
-        const newItem = {
-          i: item.i,
-          x: item.x,
-          y: item.y,
+        const newOrigin = {
+          i: origin.i,
+          x: origin.x,
+          y: origin.y,
           w: newW,
           h: newH,
           moved: false
         }
-        this.layout.push(newItem)
+        this.layout.push(newOrigin)
       }
-      // console.log(item)
+      // console.log(origin)
     },
     resized: function (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
