@@ -9,7 +9,7 @@
       </div>
     </div>
     <grid-layout
-      :layout="layout"
+      :layout.sync="layout"
       :col-num="parseInt(colNum)"
       :row-height="rowHeight"
       :maxRows="3"
@@ -82,7 +82,8 @@ export default {
       preventCollision: false,
       rowHeight: 280,
       colNum: 4,
-      index: 0
+      index: 0,
+      lastOuts: []
     }
   },
   methods: {
@@ -112,49 +113,80 @@ export default {
      */
     resize: function (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+    },
+    resized: function (i, newH, newW, newHPx, newWPx) {
+      console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       const origin = _.find(this.defaultLayout, { i: i })// 初始元素
+      const current = _.find(this.layout, { i: i })// 初始元素
       console.log(origin)
+      console.log(current)
       // 单格合并
       if (origin.w < newW) {
-        console.log(11)
-        const out = _.find(this.defaultLayout, { x: (origin.x + (newW - 1)), y: origin.y })
+        const out = _.find(this.defaultLayout, e => {
+          // console.log(e)
+          // console.log(origin)
+          // { x: (origin.x + (newW - 1)), y: origin.y }
+          if (e.x === origin.x + (newW - 1) && e.y === origin.y) {
+            this.lastOuts.push(e)
+            return e
+          }
+        })
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
         // this.preOut.push(_.find(this.layout, { i: out.i }))
       }
       if (origin.h < newH) {
-        const out = _.find(this.defaultLayout, { y: (origin.y + (newH - 1)), x: origin.x })
+        const out = _.find(this.defaultLayout, e => {
+          // { y: (origin.y + (newH - 1)), x: origin.x }
+          if (e.y === origin.y + (newH - 1) && e.x === origin.x) {
+            this.lastOuts.push(e)
+            return e
+          }
+        })
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
       }
       // 多格合并
       const outs = []
       if (origin.w < newW && origin.h < newH) {
-        _.each(this.layout, o => {
+        _.each(this.defaultLayout, o => {
           if ((o.x <= origin.x + (newW - 1)) && (o.y <= origin.y + (newH - 1))) {
+            // console.log(o)
+            // this.layout = _.without(this.layout, o)
             outs.push(o)
           }
         })
+
+        // console.log(this.lastOuts)
+        this.lastOuts.concat(outs)
         _.each(outs, e => {
-          this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
+          if (e.x > origin.x) {
+            this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
+          }
         })
-        const newOrigin = {
-          i: origin.i,
-          x: origin.x,
-          y: origin.y,
-          w: newW,
-          h: newH,
-          moved: false
-        }
-        this.layout.push(newOrigin)
+        // const newOrigin = {
+        //   i: origin.i,
+        //   x: origin.x,
+        //   y: origin.y,
+        //   w: newW,
+        //   h: newH,
+        //   moved: false
+        // }
+        // this.layout.push(newOrigin)
+      } else {
+        console.log(this.lastOuts)
       }
-    },
-    resized: function (i, newH, newW, newHPx, newWPx) {
-      // console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       let count = 0
       _.each(this.layout, e => {
         count = count + (e.w * e.h)
       })
-      console.log(count)
+      // console.log(this.lastOuts)
       if (count < 12) {
+        console.log(outs)
+        // const outs = _.uniq(this.lastOuts)
+        _.each(this.lastOuts, e => {
+          this.layout.push(e)
+        })
+        // this.lastOuts = []
+        // console.log(this.layout)
       }
     },
     containerResized: function (i, newH, newW, newHPx, newWPx) {
