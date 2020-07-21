@@ -75,8 +75,6 @@ export default {
     return {
       defaultLayout: JSON.parse(JSON.stringify(defaultLayout)),
       layout: JSON.parse(JSON.stringify(defaultLayout)),
-      preOut: [],
-      preIn: [],
       draggable: true,
       resizable: true,
       mirrored: false,
@@ -89,29 +87,36 @@ export default {
   },
   methods: {
     layoutCreatedEvent: function (newLayout) {
-      console.log('Created layout: ', newLayout)
+      // console.log('Created layout: ', newLayout)
     },
     layoutBeforeMountEvent: function (newLayout) {
-      console.log('beforeMount layout: ', newLayout)
+      // console.log('beforeMount layout: ', newLayout)
     },
     layoutMountedEvent: function (newLayout) {
-      console.log('Mounted layout: ', newLayout)
+      // console.log('Mounted layout: ', newLayout)
     },
     layoutReadyEvent: function (newLayout) {
-      console.log('Ready layout: ', newLayout)
+      // console.log('Ready layout: ', newLayout)
     },
     layoutUpdatedEvent: function (newLayout) {
-      console.log('Updated layout: ', newLayout)
+      // console.log('Updated layout: ', newLayout)
     },
+    /**
+     * handleResize
+     * @Describe 合并单元格
+     * @param i 主键
+     * @param newH w
+     * @param newW h
+     * @param newHPx hpx
+     * @param newWPx wpx
+     */
     resize: function (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       const item = _.find(this.defaultLayout, { i: i })
-      console.log(item)
-      // console.log(item.w, newW) //newW col倍数
+      // console.log(item.h, newH)
+      // console.log(item.w, newW)
       if (item.w < newW) {
-        // console.log(this.layout)
         const out = _.find(this.defaultLayout, { x: (item.x + (newW - 1)), y: item.y })
-        // console.log(this.layout, out)
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
         // this.preOut.push(_.find(this.layout, { i: out.i }))
       } else {
@@ -120,10 +125,35 @@ export default {
         // const insert = _.find(this.defaultLayout, { x: (newW), y: item.y })
         // insert.moved = false
         // this.layout.push(insert)
-        const out = _.find(this.defaultLayout, { x: (newW), y: item.y })
-        out.moved = false
+        // const out = _.find(this.defaultLayout, { x: (newW), y: item.y })
+        // out.moved = false
+        // console.log(this.layout, out)
+        // this.layout.push(out)
+      }
+      if (item.h < newH) {
+        const out = _.find(this.defaultLayout, { y: (item.y + (newH - 1)), x: item.x })
         console.log(this.layout, out)
-        this.layout.push(out)
+        this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
+      }
+      const arr = []
+      if (item.w < newW && item.h < newH) {
+        _.each(this.defaultLayout, o => {
+          if ((o.x <= item.x + (newW - 1)) && (o.y <= item.y + (newH - 1))) {
+            arr.push(o)
+          }
+        })
+        _.each(arr, e => {
+          this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
+        })
+        const newItem = {
+          i: item.i,
+          x: item.x,
+          y: item.y,
+          w: newW,
+          h: newH,
+          moved: false
+        }
+        this.layout.push(newItem)
       }
       // console.log(item)
     },
@@ -143,16 +173,16 @@ export default {
     move: function (i, newX, newY) {
       console.log('MOVE i=' + i + ', X=' + newX + ', Y=' + newY)
       const item = _.find(this.layout, { x: newX, y: newY })
-      console.log(item)
+      // console.log(item)
       const origin = _.find(this.layout, { i: i })
-      console.log(origin)
+      // console.log(origin)
       _.each(this.layout, e => {
         if (e.i === item.i) {
           e.x = origin.x
           e.y = origin.y
         }
       })
-      console.log(item)
+      // console.log(item)
     },
     moved: function (i, newX, newY) {
       console.log('### MOVED i=' + i + ', X=' + newX + ', Y=' + newY)
