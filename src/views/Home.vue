@@ -9,7 +9,8 @@
       </div>
     </div>
     <grid-layout
-      :layout.sync="layout"
+        ref="grid"
+      :layout="layout"
       :col-num="parseInt(colNum)"
       :row-height="rowHeight"
       :maxRows="3"
@@ -117,16 +118,14 @@ export default {
     resized: function (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       const origin = _.find(this.defaultLayout, { i: i })// 初始元素
-      const current = _.find(this.layout, { i: i })// 初始元素
+      // const current = _.find(this.layout, { i: i })// 初始元素
       console.log(origin)
-      console.log(current)
+      // console.log(current)
       // 单格合并
       if (origin.w < newW) {
         const out = _.find(this.defaultLayout, e => {
-          // console.log(e)
-          // console.log(origin)
           // { x: (origin.x + (newW - 1)), y: origin.y }
-          if (e.x === origin.x + (newW - 1) && e.y === origin.y) {
+          if (e.x >= origin.x + (newW - 1) && e.y === origin.y) {
             this.lastOuts.push(e)
             return e
           }
@@ -137,7 +136,7 @@ export default {
       if (origin.h < newH) {
         const out = _.find(this.defaultLayout, e => {
           // { y: (origin.y + (newH - 1)), x: origin.x }
-          if (e.y === origin.y + (newH - 1) && e.x === origin.x) {
+          if (e.y >= origin.y + (newH - 1) && e.x === origin.x) {
             this.lastOuts.push(e)
             return e
           }
@@ -154,11 +153,13 @@ export default {
             outs.push(o)
           }
         })
-
+        console.log(outs)
         // console.log(this.lastOuts)
-        this.lastOuts.concat(outs)
+        // this.lastOuts.concat(outs)
+        // this.lastOuts = []
         _.each(outs, e => {
           if (e.x > origin.x) {
+            this.lastOuts.push(e)
             this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
           }
         })
@@ -178,14 +179,18 @@ export default {
       _.each(this.layout, e => {
         count = count + (e.w * e.h)
       })
-      // console.log(this.lastOuts)
+      console.log(this.lastOuts)
       if (count < 12) {
         console.log(outs)
-        // const outs = _.uniq(this.lastOuts)
-        _.each(this.lastOuts, e => {
+        const out = _.uniq(this.lastOuts)
+        _.each(out, e => {
+          e.moved = false
           this.layout.push(e)
         })
-        // this.lastOuts = []
+        this.layout = _.sortBy(this.layout, o => {
+          return Number(o.i)
+        })
+        this.lastOuts = []
         // console.log(this.layout)
       }
     },
@@ -194,8 +199,8 @@ export default {
     },
     move: function (i, newX, newY) {
       console.log('MOVE i=' + i + ', X=' + newX + ', Y=' + newY)
-      const item = _.find(this.layout, { x: newX, y: newY })
-      // console.log(item)
+      const item = _.find(this.defaultLayout, { x: newX, y: newY })
+      console.log(item)
       const origin = _.find(this.layout, { i: i })
       // console.log(origin)
       _.each(this.layout, e => {
