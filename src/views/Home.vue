@@ -120,28 +120,15 @@ export default {
         const out = _.find(this.defaultLayout, { x: (origin.x + (newW - 1)), y: origin.y })
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
         // this.preOut.push(_.find(this.layout, { i: out.i }))
-      } else {
-        // console.log(newW)
-        // console.log(_.find(this.defaultLayout, { x: (newW), y: origin.y }))
-        // const insert = _.find(this.defaultLayout, { x: (newW), y: origin.y })
-        // insert.moved = false
-        // this.layout.push(insert)
-        // const out = _.find(this.defaultLayout, { x: (newW), y: origin.y })
-        // out.moved = false
-        // console.log(this.layout, out)
-        // this.layout.push(out)
       }
       if (origin.h < newH) {
-        console.log(22)
         const out = _.find(this.defaultLayout, { y: (origin.y + (newH - 1)), x: origin.x })
-        console.log(this.layout, out)
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
       }
       // 多格合并
       const outs = []
       if (origin.w < newW && origin.h < newH) {
-        console.log(33)
-        _.each(this.defaultLayout, o => {
+        _.each(this.layout, o => {
           if ((o.x <= origin.x + (newW - 1)) && (o.y <= origin.y + (newH - 1))) {
             outs.push(o)
           }
@@ -159,17 +146,16 @@ export default {
         }
         this.layout.push(newOrigin)
       }
-      // console.log(origin)
     },
     resized: function (i, newH, newW, newHPx, newWPx) {
-      console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
-      // const item = _.find(this.defaultLayout, { i: i })
-      // if (item.w < newW) {
-      //   _.each(this.preOut, e => {
-      //     this.layout = _.without(this.layout, e)
-      //   })
-      // }
-      // this.preOut = []
+      // console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      let count = 0
+      _.each(this.layout, e => {
+        count = count + (e.w * e.h)
+      })
+      console.log(count)
+      if (count < 12) {
+      }
     },
     containerResized: function (i, newH, newW, newHPx, newWPx) {
       // console.log('CONTAINER RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
@@ -189,7 +175,7 @@ export default {
       // console.log(item)
     },
     moved: function (i, newX, newY) {
-      console.log('### MOVED i=' + i + ', X=' + newX + ', Y=' + newY)
+      // console.log('### MOVED i=' + i + ', X=' + newX + ', Y=' + newY)
     }
   }
 }
