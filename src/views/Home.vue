@@ -92,19 +92,19 @@ export default {
     }
   },
   methods: {
-    layoutCreatedEvent: function (newLayout) {
+    layoutCreatedEvent (newLayout) {
       // console.log('Created layout: ', newLayout)
     },
-    layoutBeforeMountEvent: function (newLayout) {
+    layoutBeforeMountEvent (newLayout) {
       // console.log('beforeMount layout: ', newLayout)
     },
-    layoutMountedEvent: function (newLayout) {
+    layoutMountedEvent (newLayout) {
       // console.log('Mounted layout: ', newLayout)
     },
-    layoutReadyEvent: function (newLayout) {
+    layoutReadyEvent (newLayout) {
       // console.log('Ready layout: ', newLayout)
     },
-    layoutUpdatedEvent: function (newLayout) {
+    layoutUpdatedEvent (newLayout) {
       // console.log('Updated layout: ', newLayout)
       this.showGrid = false
       setTimeout(() => {
@@ -176,12 +176,12 @@ export default {
       }
       console.log(this.lastOuts)
     },
-    resize: function (i, newH, newW, newHPx, newWPx) {
+    resize (i, newH, newW, newHPx, newWPx) {
       // console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
-      this.handleResize(i, newH, newW, newHPx, newWPx)
     },
-    resized: function (i, newH, newW, newHPx, newWPx) {
+    resized (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      this.handleResize(i, newH, newW, newHPx, newWPx)
       let count = 0
       _.each(this.layout, e => {
         count = count + (e.w * e.h)
@@ -206,14 +206,11 @@ export default {
           this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
         })
       }
-      // this.layout = _.sortBy(this.layout, o => {
-      //   return Number(o.i)
-      // })
     },
-    containerResized: function (i, newH, newW, newHPx, newWPx) {
+    containerResized (i, newH, newW, newHPx, newWPx) {
       // console.log('CONTAINER RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
     },
-    move: function (i, newX, newY) {
+    move (i, newX, newY) {
       console.log('MOVE i=' + i + ', X=' + newX + ', Y=' + newY)
       const item = _.find(this.layout, { x: newX, y: newY })
       const origin = _.find(this.defaultLayout, { i: i })
@@ -237,7 +234,7 @@ export default {
       })
       // console.log(item)
     },
-    moved: function (i, newX, newY) {
+    moved (i, newX, newY) {
       // console.log('### MOVED i=' + i + ', X=' + newX + ', Y=' + newY)
     }
   }
