@@ -118,9 +118,9 @@ export default {
     resized: function (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       const origin = _.find(this.defaultLayout, { i: i })// 初始元素
-      // const current = _.find(this.layout, { i: i })// 初始元素
+      const current = _.find(this.layout, { i: i })
       console.log(origin)
-      // console.log(current)
+      console.log(current)
       // 单格合并
       if (origin.w < newW) {
         const out = _.find(this.defaultLayout, e => {
@@ -131,7 +131,6 @@ export default {
           }
         })
         this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
-        // this.preOut.push(_.find(this.layout, { i: out.i }))
       }
       if (origin.h < newH) {
         const out = _.find(this.defaultLayout, e => {
@@ -156,7 +155,7 @@ export default {
         console.log(outs)
         // console.log(this.lastOuts)
         // this.lastOuts.concat(outs)
-        // this.lastOuts = []
+        this.lastOuts = []
         _.each(outs, e => {
           if (e.x > origin.x) {
             this.lastOuts.push(e)
@@ -199,14 +198,23 @@ export default {
     },
     move: function (i, newX, newY) {
       console.log('MOVE i=' + i + ', X=' + newX + ', Y=' + newY)
-      const item = _.find(this.defaultLayout, { x: newX, y: newY })
-      console.log(item)
-      const origin = _.find(this.layout, { i: i })
-      // console.log(origin)
+      const item = _.find(this.layout, { x: newX, y: newY })
+      const origin = _.find(this.defaultLayout, { i: i })
       _.each(this.layout, e => {
+        if (e.i === i) {
+          e.x = newX
+          e.y = newY
+        }
         if (e.i === item.i) {
-          e.x = origin.x
-          e.y = origin.y
+          // 若之前有替换过位置的判断
+          if (origin.x === newX && origin.y === newY) {
+            const newOrigin = _.find(this.defaultLayout, { i: item.i })
+            e.x = newOrigin.x
+            e.y = newOrigin.y
+          } else {
+            e.x = origin.x
+            e.y = origin.y
+          }
         }
       })
       // console.log(item)
