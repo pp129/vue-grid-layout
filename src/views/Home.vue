@@ -8,9 +8,8 @@
         </div>
       </div>
     </div>
-    <grid-layout
-        ref="grid"
-      :layout="layout"
+    <grid-layout v-if="showGrid"
+      :layout.sync="layout"
       :col-num="parseInt(colNum)"
       :row-height="rowHeight"
       :maxRows="3"
@@ -21,6 +20,8 @@
       :vertical-compact="true"
       :use-css-transforms="true"
       :responsive="responsive"
+      :autoSize="autoSize"
+      :verticalCompact="verticalCompact"
       @layout-created="layoutCreatedEvent"
       @layout-before-mount="layoutBeforeMountEvent"
       @layout-mounted="layoutMountedEvent"
@@ -74,12 +75,15 @@ export default {
   },
   data () {
     return {
+      showGrid: true,
       defaultLayout: JSON.parse(JSON.stringify(defaultLayout)),
       layout: JSON.parse(JSON.stringify(defaultLayout)),
       draggable: true,
       resizable: true,
       mirrored: false,
       responsive: false,
+      autoSize: false,
+      verticalCompact: true,
       preventCollision: false,
       rowHeight: 280,
       colNum: 4,
@@ -102,6 +106,11 @@ export default {
     },
     layoutUpdatedEvent: function (newLayout) {
       // console.log('Updated layout: ', newLayout)
+      this.showGrid = false
+      setTimeout(() => {
+        console.log(newLayout)
+        this.showGrid = true
+      }, 50)
     },
     /**
      * handleResize
@@ -112,15 +121,11 @@ export default {
      * @param newHPx hpx
      * @param newWPx wpx
      */
-    resize: function (i, newH, newW, newHPx, newWPx) {
-      console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
-    },
-    resized: function (i, newH, newW, newHPx, newWPx) {
-      console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+    handleResize (i, newH, newW, newHPx, newWPx) {
       const origin = _.find(this.defaultLayout, { i: i })// 初始元素
-      const current = _.find(this.layout, { i: i })
-      console.log(origin)
-      console.log(current)
+      // const current = _.find(this.layout, { i: i })
+      // console.log(origin)
+      // console.log(current)
       // 单格合并
       if (origin.w < newW) {
         const out = _.find(this.defaultLayout, e => {
@@ -147,15 +152,12 @@ export default {
       if (origin.w < newW && origin.h < newH) {
         _.each(this.defaultLayout, o => {
           if ((o.x <= origin.x + (newW - 1)) && (o.y <= origin.y + (newH - 1))) {
-            // console.log(o)
             // this.layout = _.without(this.layout, o)
             outs.push(o)
           }
         })
-        console.log(outs)
         // console.log(this.lastOuts)
-        // this.lastOuts.concat(outs)
-        this.lastOuts = []
+        // this.lastOuts = []
         _.each(outs, e => {
           if (e.x > origin.x) {
             this.lastOuts.push(e)
@@ -171,27 +173,42 @@ export default {
         //   moved: false
         // }
         // this.layout.push(newOrigin)
-      } else {
-        console.log(this.lastOuts)
       }
+      console.log(this.lastOuts)
+    },
+    resize: function (i, newH, newW, newHPx, newWPx) {
+      // console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      this.handleResize(i, newH, newW, newHPx, newWPx)
+    },
+    resized: function (i, newH, newW, newHPx, newWPx) {
+      console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       let count = 0
       _.each(this.layout, e => {
         count = count + (e.w * e.h)
       })
+      const out = _.uniq(this.lastOuts)
       console.log(this.lastOuts)
+      console.log(count)
       if (count < 12) {
-        console.log(outs)
-        const out = _.uniq(this.lastOuts)
+        // console.log(outs)
         _.each(out, e => {
           e.moved = false
-          this.layout.push(e)
+          // this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
+          this.layout.push(_.find(this.defaultLayout, { i: e.i }))
         })
-        this.layout = _.sortBy(this.layout, o => {
-          return Number(o.i)
-        })
-        this.lastOuts = []
+        // this.lastOuts = []
         // console.log(this.layout)
       }
+      if (count > 12) {
+        console.log(out)
+        _.each(out, e => {
+          e.moved = false
+          this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
+        })
+      }
+      // this.layout = _.sortBy(this.layout, o => {
+      //   return Number(o.i)
+      // })
     },
     containerResized: function (i, newH, newW, newHPx, newWPx) {
       // console.log('CONTAINER RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
@@ -208,6 +225,7 @@ export default {
         if (e.i === item.i) {
           // 若之前有替换过位置的判断
           if (origin.x === newX && origin.y === newY) {
+            // this.verticalCompact = false
             const newOrigin = _.find(this.defaultLayout, { i: item.i })
             e.x = newOrigin.x
             e.y = newOrigin.y
