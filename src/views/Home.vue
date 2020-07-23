@@ -106,11 +106,11 @@ export default {
     },
     layoutUpdatedEvent (newLayout) {
       // console.log('Updated layout: ', newLayout)
-      this.showGrid = false
-      setTimeout(() => {
-        console.log(newLayout)
-        this.showGrid = true
-      }, 50)
+      // this.showGrid = false
+      // setTimeout(() => {
+      //   console.log(newLayout)
+      //   this.showGrid = true
+      // }, 50)
     },
     /**
      * handleResize
@@ -178,10 +178,11 @@ export default {
     },
     resize (i, newH, newW, newHPx, newWPx) {
       // console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      this.handleResize(i, newH, newW, newHPx, newWPx)
     },
     resized (i, newH, newW, newHPx, newWPx) {
       console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
-      this.handleResize(i, newH, newW, newHPx, newWPx)
+
       let count = 0
       _.each(this.layout, e => {
         count = count + (e.w * e.h)
@@ -199,13 +200,13 @@ export default {
         // this.lastOuts = []
         // console.log(this.layout)
       }
-      if (count > 12) {
-        console.log(out)
-        _.each(out, e => {
-          e.moved = false
-          this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
-        })
-      }
+      // if (count > 12) {
+      //   console.log(out)
+      //   _.each(out, e => {
+      //     e.moved = false
+      //     this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
+      //   })
+      // }
     },
     containerResized (i, newH, newW, newHPx, newWPx) {
       // console.log('CONTAINER RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
