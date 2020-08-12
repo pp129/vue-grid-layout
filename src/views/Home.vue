@@ -123,90 +123,58 @@ export default {
      */
     handleResize (i, newH, newW, newHPx, newWPx) {
       const origin = _.find(this.defaultLayout, { i: i })// 初始元素
-      // const current = _.find(this.layout, { i: i })
-      // console.log(origin)
-      // console.log(current)
       // 单格合并
-      if (origin.w < newW) {
-        const out = _.find(this.defaultLayout, e => {
-          // { x: (origin.x + (newW - 1)), y: origin.y }
-          if (e.x >= origin.x + (newW - 1) && e.y === origin.y) {
-            this.lastOuts.push(e)
-            return e
+      _.each(this.defaultLayout, o => {
+        if ((o.x <= origin.x + (newW - 1)) && (o.y <= origin.y + (newH - 1))) {
+          if (o.x >= origin.x && o.y >= origin.y) {
+            if (o.i !== i) {
+              const item = _.find(this.layout, { i: o.i })
+              const index = _.findIndex(this.lastOuts, { i: o.i })
+              if (index < 0) {
+                this.lastOuts.push(o)
+              }
+              this.layout = _.without(this.layout, item)
+            }
           }
-        })
-        this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
-      }
-      if (origin.h < newH) {
-        const out = _.find(this.defaultLayout, e => {
-          // { y: (origin.y + (newH - 1)), x: origin.x }
-          if (e.y >= origin.y + (newH - 1) && e.x === origin.x) {
-            this.lastOuts.push(e)
-            return e
-          }
-        })
-        this.layout = _.without(this.layout, _.find(this.layout, { i: out.i }))
-      }
-      // 多格合并
-      const outs = []
-      if (origin.w < newW && origin.h < newH) {
-        _.each(this.defaultLayout, o => {
-          if ((o.x <= origin.x + (newW - 1)) && (o.y <= origin.y + (newH - 1))) {
-            // this.layout = _.without(this.layout, o)
-            outs.push(o)
-          }
-        })
-        // console.log(this.lastOuts)
-        // this.lastOuts = []
-        _.each(outs, e => {
-          if (e.x > origin.x) {
-            this.lastOuts.push(e)
-            this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
-          }
-        })
-        // const newOrigin = {
-        //   i: origin.i,
-        //   x: origin.x,
-        //   y: origin.y,
-        //   w: newW,
-        //   h: newH,
-        //   moved: false
-        // }
-        // this.layout.push(newOrigin)
-      }
+        }
+      })
       console.log(this.lastOuts)
+    },
+    autocomplete () {
+      let count = 0
+      _.each(this.layout, e => {
+        count = count + (e.w * e.h)
+      })
+      console.log(count)
+      if (count < 12) {
+        let lCount = 0
+        console.log(this.lastOuts)
+        _.each(this.lastOuts, e => {
+          if (e) {
+            lCount = lCount + (e.w * e.h)
+            if ((12 - count) >= lCount) {
+              e.moved = false
+              const item = _.find(this.defaultLayout, { i: e.i })
+              if (item) {
+                this.layout.push(item)
+                this.lastOuts = _.without(this.lastOuts, e)
+                // this.lastOuts = _.dropWhile(this.lastOuts, o => { return o.i === e.i })
+              }
+            }
+            // this.lastOuts = _.dropWhile(this.lastOuts, o => { return o.i === e.i })
+            // this.lastOuts = _.without(this.lastOuts, e)
+          }
+        })
+        // this.defaultLayout = this.layout
+      }
     },
     resize (i, newH, newW, newHPx, newWPx) {
       // console.log('RESIZE i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
       this.handleResize(i, newH, newW, newHPx, newWPx)
     },
     resized (i, newH, newW, newHPx, newWPx) {
-      console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
-
-      let count = 0
-      _.each(this.layout, e => {
-        count = count + (e.w * e.h)
-      })
-      const out = _.uniq(this.lastOuts)
-      console.log(this.lastOuts)
-      console.log(count)
-      if (count < 12) {
-        // console.log(outs)
-        _.each(out, e => {
-          e.moved = false
-          // this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
-          this.layout.push(_.find(this.defaultLayout, { i: e.i }))
-        })
-        // this.lastOuts = []
-        // console.log(this.layout)
-      }
-      // if (count > 12) {
-      //   console.log(out)
-      //   _.each(out, e => {
-      //     e.moved = false
-      //     this.layout = _.without(this.layout, _.find(this.layout, { i: e.i }))
-      //   })
-      // }
+      // console.log('RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
+      this.autocomplete()
     },
     containerResized (i, newH, newW, newHPx, newWPx) {
       // console.log('CONTAINER RESIZED i=' + i + ', H=' + newH + ', W=' + newW + ', H(px)=' + newHPx + ', W(px)=' + newWPx)
@@ -241,6 +209,7 @@ export default {
   }
 }
 </script>
+
 <style>
   .grid-item{
     background: #cccccc;
