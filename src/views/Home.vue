@@ -145,10 +145,8 @@ export default {
       _.each(this.layout, e => {
         count = count + (e.w * e.h)
       })
-      console.log(count)
       if (count < 12) {
         let lCount = 0
-        console.log(this.lastOuts)
         _.each(this.lastOuts, e => {
           if (e) {
             lCount = lCount + (e.w * e.h)
@@ -158,14 +156,13 @@ export default {
               if (item) {
                 this.layout.push(item)
                 this.lastOuts = _.without(this.lastOuts, e)
-                // this.lastOuts = _.dropWhile(this.lastOuts, o => { return o.i === e.i })
               }
             }
-            // this.lastOuts = _.dropWhile(this.lastOuts, o => { return o.i === e.i })
-            // this.lastOuts = _.without(this.lastOuts, e)
           }
         })
-        // this.defaultLayout = this.layout
+        if (this.layout.length === 12) {
+          this.defaultLayout = this.layout
+        }
       }
     },
     resize (i, newH, newW, newHPx, newWPx) {
